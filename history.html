@@ -45,7 +45,7 @@
         deleteBtn.className = "bg-red-500 text-white px-2 py-1 rounded mt-2";
         deleteBtn.onclick = () => {
           if (confirm("آیا مطمئن هستید؟")) {
-            purchases.splice(i, 1);
+            purchases.sort((a, b) => b.timestamp - a.timestamp);
             localStorage.setItem('purchases', JSON.stringify(purchases));
             renderHistory();
           }

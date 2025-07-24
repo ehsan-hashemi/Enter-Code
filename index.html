@@ -7,22 +7,23 @@
 </head>
 <body class="bg-gray-100 p-6 font-sans">
 
-    <nav class="bg-blue-600 text-white p-4 rounded mb-6 flex justify-between items-center">
-        <div class="text-xl font-bold">فروشگاه دیجیتال</div>
-        <div class="space-x-4 space-x-reverse">
-            <a href="index.html" class="hover:underline">🛒 فروش</a>
-            <a href="products.html" class="hover:underline">📦 محصولات</a>
-            <a href="customers.html" class="hover:underline">👥 مشتریان</a>
-            <a href="history.html" class="hover:underline">📜 تاریخچه</a>
-        </div>
-    </nav>
+  <nav class="bg-blue-600 text-white p-4 rounded mb-6 flex justify-between items-center">
+    <div class="text-xl font-bold">فروشگاه دیجیتال</div>
+    <div class="space-x-4 space-x-reverse">
+      <a href="index.html" class="hover:underline">🛒 فروش</a>
+      <a href="products.html" class="hover:underline">📦 محصولات</a>
+      <a href="customers.html" class="hover:underline">👥 مشتریان</a>
+      <a href="history.html" class="hover:underline">📜 تاریخچه</a>
+    </div>
+  </nav>
 
   <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
     <h1 class="text-3xl font-bold text-center mb-6">🛒 ثبت خرید</h1>
 
-    <!-- ورودی کد محصول -->
+    <!-- ورودی کد محصول + تعداد -->
     <div class="flex gap-2 mb-4">
       <input id="productCodeInput" type="text" placeholder="کد محصول را وارد کنید" class="border p-2 rounded w-full">
+      <input id="productQtyInput" type="number" min="1" value="1" class="border p-2 rounded w-24 text-center" title="تعداد">
       <button onclick="addToCart()" class="bg-green-500 text-white px-4 py-2 rounded">➕ افزودن</button>
     </div>
 
@@ -51,11 +52,15 @@
 
     function addToCart() {
       const code = productCodeInput.value.trim();
+      const quantity = parseInt(productQtyInput.value);
+      if (!code || isNaN(quantity) || quantity < 1) return alert("کد یا تعداد معتبر نیست!");
+
       const product = products.find(p => p.code === code);
       if (!product) return alert("محصولی با این کد یافت نشد!");
 
-      cart.push(product);
+      cart.push({ ...product, quantity });
       productCodeInput.value = '';
+      productQtyInput.value = 1;
       renderCart();
     }
 
@@ -63,12 +68,14 @@
       cartList.innerHTML = '';
       let total = 0;
       cart.forEach((p, i) => {
-        const price = p.price + (p.profit || 0) - (p.discount || 0);
-        total += price;
+        const unitPrice = p.price + (p.profit || 0) - (p.discount || 0);
+        const itemTotal = unitPrice * (p.quantity || 1);
+        total += itemTotal;
+
         const li = document.createElement('li');
         li.className = "bg-gray-100 p-2 rounded flex justify-between items-center";
         li.innerHTML = `
-          <div>${p.name} | کد: ${p.code} | قیمت نهایی: ${price} ریال</div>
+          <div>${p.name} | کد: ${p.code} | تعداد: ${p.quantity} | قیمت نهایی: ${itemTotal.toLocaleString()} ریال</div>
           <button onclick="removeFromCart(${i})" class="bg-red-500 text-white px-2 py-1 rounded">❌ حذف</button>
         `;
         cartList.appendChild(li);
@@ -87,7 +94,12 @@
       const name = customerName.value.trim();
       const phone = customerPhone.value.trim();
       const date = new Date().toLocaleString('fa-IR');
-      const total = cart.reduce((sum, p) => sum + p.price + (p.profit || 0) - (p.discount || 0), 0);
+      const total = cart.reduce((sum, p) => {
+        const unitPrice = p.price + (p.profit || 0) - (p.discount || 0);
+        return sum + unitPrice * (p.quantity || 1);
+      }, 0);
+      const timestamp = Date.now(); // عددی قابل مرتب‌سازی
+
 
       purchases.push({ name, phone, date, items: cart, total });
       localStorage.setItem('purchases', JSON.stringify(purchases));
@@ -96,6 +108,14 @@
       customerName.value = customerPhone.value = '';
       alert("✅ خرید ثبت شد!");
     }
+
+    // 🎯 افزودن با Enter
+    productCodeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addToCart();
+    });
+    productQtyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addToCart();
+    });
   </script>
 </body>
 </html>
