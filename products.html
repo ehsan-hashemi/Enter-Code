@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مدیریت محصولات</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 font-sans">
+
+    <nav class="bg-blue-600 text-white p-4 rounded mb-6 flex justify-between items-center">
+        <div class="text-xl font-bold">فروشگاه دیجیتال</div>
+        <div class="space-x-4 space-x-reverse">
+            <a href="index.html" class="hover:underline">🛒 فروش</a>
+            <a href="products.html" class="hover:underline">📦 محصولات</a>
+            <a href="customers.html" class="hover:underline">👥 مشتریان</a>
+            <a href="history.html" class="hover:underline">📜 تاریخچه</a>
+        </div>
+    </nav>
+
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-center mb-6">📦 مدیریت محصولات</h1>
+
+    <!-- فرم افزودن محصول -->
+    <div class="grid grid-cols-3 gap-2 mb-4">
+      <input id="pName" type="text" placeholder="نام محصول" class="border p-2 rounded">
+      <input id="pCode" type="text" placeholder="کد محصول" class="border p-2 rounded">
+      <input id="pPrice" type="number" placeholder="قیمت (ریال)" class="border p-2 rounded">
+    </div>
+    <button onclick="addProduct()" class="bg-green-500 text-white px-4 py-2 rounded mb-6">➕ افزودن محصول</button>
+
+    <!-- لیست محصولات -->
+    <h2 class="text-xl font-semibold mb-2">📋 لیست محصولات</h2>
+    <ul id="productList" class="space-y-2"></ul>
+  </div>
+
+  <script>
+    let products = JSON.parse(localStorage.getItem('products') || '[]');
+
+    function saveProducts() {
+      localStorage.setItem('products', JSON.stringify(products));
+    }
+
+    function addProduct() {
+      const name = pName.value.trim();
+      const code = pCode.value.trim();
+      const price = parseInt(pPrice.value);
+
+      if (!name || !code || isNaN(price)) return alert("اطلاعات ناقص!");
+
+      products.push({ name, code, price });
+      saveProducts();
+      renderProducts();
+      pName.value = pCode.value = pPrice.value = '';
+    }
+
+    function deleteProduct(index) {
+      products.splice(index, 1);
+      saveProducts();
+      renderProducts();
+    }
+
+    function renderProducts() {
+      productList.innerHTML = '';
+      products.forEach((p, i) => {
+        const li = document.createElement('li');
+        li.className = "bg-gray-100 p-2 rounded flex justify-between items-center";
+        li.innerHTML = `
+          <div>${p.name} | کد: ${p.code} | قیمت: ${p.price.toLocaleString()} ریال</div>
+          <button onclick="deleteProduct(${i})" class="bg-red-500 text-white px-2 py-1 rounded">❌ حذف</button>
+        `;
+        productList.appendChild(li);
+      });
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>

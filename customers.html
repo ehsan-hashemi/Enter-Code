@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مشتریان</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 font-sans">
+
+  <!-- منوی ناوبری -->
+  <nav class="bg-blue-600 text-white p-4 rounded mb-6 flex justify-between items-center">
+    <div class="text-xl font-bold">فروشگاه دیجیتال</div>
+    <div class="space-x-4 space-x-reverse">
+      <a href="index.html" class="hover:underline">🛒 فروش</a>
+      <a href="products.html" class="hover:underline">📦 محصولات</a>
+      <a href="customers.html" class="hover:underline">👥 مشتریان</a>
+      <a href="history.html" class="hover:underline">📜 تاریخچه</a>
+    </div>
+  </nav>
+
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-center mb-6">👥 مشتریان</h1>
+    <ul id="customerList" class="space-y-4"></ul>
+  </div>
+
+  <script>
+    let purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
+
+    function groupByCustomer() {
+      const map = {};
+      purchases.forEach(p => {
+        const key = p.phone || 'بدون شماره';
+        if (!map[key]) map[key] = { name: p.name || 'نام نامشخص', purchases: [] };
+        map[key].purchases.push(p);
+      });
+      return map;
+    }
+
+    function renderCustomers() {
+      const customers = groupByCustomer();
+      customerList.innerHTML = '';
+
+      Object.entries(customers).forEach(([phone, data]) => {
+        const li = document.createElement('li');
+        li.className = "bg-gray-100 p-4 rounded shadow";
+
+        const header = document.createElement('div');
+        header.className = "cursor-pointer font-bold text-lg text-blue-700 flex justify-between items-center";
+        header.innerHTML = `👤 ${data.name} | 📞 ${phone}`;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '🗑️ حذف مشتری';
+        deleteBtn.className = "bg-red-500 text-white px-2 py-1 rounded";
+        deleteBtn.onclick = () => {
+          if (confirm("آیا مطمئن هستید؟")) {
+            purchases = purchases.filter(p => (p.phone || 'بدون شماره') !== phone);
+            localStorage.setItem('purchases', JSON.stringify(purchases));
+            renderCustomers();
+          }
+        };
+
+        const headerWrapper = document.createElement('div');
+        headerWrapper.className = "flex justify-between items-center";
+        headerWrapper.appendChild(header);
+        headerWrapper.appendChild(deleteBtn);
+
+        const details = document.createElement('div');
+        details.className = "mt-2 space-y-2 hidden";
+
+        data.purchases.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(p => {
+          const itemNames = p.items.map(i => i.name).join(', ');
+          const div = document.createElement('div');
+          div.className = "bg-white p-2 rounded border";
+          div.innerHTML = `
+            🕒 ${p.date}<br>
+            🧾 محصولات: ${itemNames}<br>
+            💰 مجموع: ${p.total.toLocaleString()} ریال
+          `;
+          details.appendChild(div);
+        });
+
+        header.onclick = () => {
+          details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        };
+
+        li.appendChild(headerWrapper);
+        li.appendChild(details);
+        customerList.appendChild(li);
+      });
+    }
+
+    renderCustomers();
+  </script>
+</body>
+</html>

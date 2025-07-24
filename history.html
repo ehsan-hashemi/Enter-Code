@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تاریخچه خریدها</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 font-sans">
+
+  <!-- منوی ناوبری -->
+  <nav class="bg-blue-600 text-white p-4 rounded mb-6 flex justify-between items-center">
+    <div class="text-xl font-bold">فروشگاه دیجیتال</div>
+    <div class="space-x-4 space-x-reverse">
+      <a href="index.html" class="hover:underline">🛒 فروش</a>
+      <a href="products.html" class="hover:underline">📦 محصولات</a>
+      <a href="customers.html" class="hover:underline">👥 مشتریان</a>
+      <a href="history.html" class="hover:underline">📜 تاریخچه</a>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-center mb-6">📜 تاریخچه خریدها</h1>
+    <ul id="historyList" class="space-y-4"></ul>
+  </div>
+
+  <script>
+    let purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
+
+    function renderHistory() {
+      historyList.innerHTML = '';
+      for (let i = 0; i < purchases.length; i++) {
+        const p = purchases[i];
+        const itemNames = p.items.map(i => i.name).join(', ');
+        const li = document.createElement('li');
+        li.className = "bg-gray-100 p-4 rounded shadow";
+        li.innerHTML = `
+          <div class="font-bold text-blue-700">🕒 ${p.date}</div>
+          <div>👤 ${p.name || 'نام نامشخص'} | 📞 ${p.phone || 'شماره نامشخص'}</div>
+          <div>🧾 محصولات: ${itemNames}</div>
+          <div class="font-bold">💰 مجموع: ${p.total.toLocaleString()} ریال</div>
+        `;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '🗑️ حذف خرید';
+        deleteBtn.className = "bg-red-500 text-white px-2 py-1 rounded mt-2";
+        deleteBtn.onclick = () => {
+          if (confirm("آیا مطمئن هستید؟")) {
+            purchases.splice(i, 1);
+            localStorage.setItem('purchases', JSON.stringify(purchases));
+            renderHistory();
+          }
+        };
+
+        li.appendChild(deleteBtn);
+        historyList.appendChild(li);
+      }
+    }
+
+    renderHistory();
+  </script>
+</body>
+</html>

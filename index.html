@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>فروشگاه - ثبت خرید</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 font-sans">
+
+    <nav class="bg-blue-600 text-white p-4 rounded mb-6 flex justify-between items-center">
+        <div class="text-xl font-bold">فروشگاه دیجیتال</div>
+        <div class="space-x-4 space-x-reverse">
+            <a href="index.html" class="hover:underline">🛒 فروش</a>
+            <a href="products.html" class="hover:underline">📦 محصولات</a>
+            <a href="customers.html" class="hover:underline">👥 مشتریان</a>
+            <a href="history.html" class="hover:underline">📜 تاریخچه</a>
+        </div>
+    </nav>
+
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-center mb-6">🛒 ثبت خرید</h1>
+
+    <!-- ورودی کد محصول -->
+    <div class="flex gap-2 mb-4">
+      <input id="productCodeInput" type="text" placeholder="کد محصول را وارد کنید" class="border p-2 rounded w-full">
+      <button onclick="addToCart()" class="bg-green-500 text-white px-4 py-2 rounded">➕ افزودن</button>
+    </div>
+
+    <!-- لیست خرید -->
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold mb-2">📦 لیست خرید</h2>
+      <ul id="cartList" class="space-y-2"></ul>
+      <div class="mt-4 text-lg font-bold" id="totalPrice">💰 مجموع: ۰ ریال</div>
+    </div>
+
+    <!-- اطلاعات مشتری -->
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold mb-2">👤 اطلاعات مشتری (اختیاری)</h2>
+      <input id="customerName" type="text" placeholder="نام مشتری" class="border p-2 rounded w-full mb-2">
+      <input id="customerPhone" type="text" placeholder="شماره تلفن" class="border p-2 rounded w-full">
+    </div>
+
+    <!-- دکمه ثبت خرید -->
+    <button onclick="submitPurchase()" class="bg-blue-600 text-white px-6 py-3 rounded w-full text-xl">✅ ثبت خرید</button>
+  </div>
+
+  <script>
+    let products = JSON.parse(localStorage.getItem('products') || '[]');
+    let purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
+    let cart = [];
+
+    function addToCart() {
+      const code = productCodeInput.value.trim();
+      const product = products.find(p => p.code === code);
+      if (!product) return alert("محصولی با این کد یافت نشد!");
+
+      cart.push(product);
+      productCodeInput.value = '';
+      renderCart();
+    }
+
+    function renderCart() {
+      cartList.innerHTML = '';
+      let total = 0;
+      cart.forEach((p, i) => {
+        const price = p.price + (p.profit || 0) - (p.discount || 0);
+        total += price;
+        const li = document.createElement('li');
+        li.className = "bg-gray-100 p-2 rounded flex justify-between items-center";
+        li.innerHTML = `
+          <div>${p.name} | کد: ${p.code} | قیمت نهایی: ${price} ریال</div>
+          <button onclick="removeFromCart(${i})" class="bg-red-500 text-white px-2 py-1 rounded">❌ حذف</button>
+        `;
+        cartList.appendChild(li);
+      });
+      totalPrice.textContent = `💰 مجموع: ${total.toLocaleString()} ریال`;
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      renderCart();
+    }
+
+    function submitPurchase() {
+      if (cart.length === 0) return alert("سبد خرید خالی است!");
+
+      const name = customerName.value.trim();
+      const phone = customerPhone.value.trim();
+      const date = new Date().toLocaleString('fa-IR');
+      const total = cart.reduce((sum, p) => sum + p.price + (p.profit || 0) - (p.discount || 0), 0);
+
+      purchases.push({ name, phone, date, items: cart, total });
+      localStorage.setItem('purchases', JSON.stringify(purchases));
+      cart = [];
+      renderCart();
+      customerName.value = customerPhone.value = '';
+      alert("✅ خرید ثبت شد!");
+    }
+  </script>
+</body>
+</html>
