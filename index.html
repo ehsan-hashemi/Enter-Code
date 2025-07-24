@@ -7,16 +7,18 @@
 </head>
 <body class="bg-gray-100 p-6 font-sans">
 
+  <!-- نوار بالا -->
   <nav class="bg-blue-600 text-white p-4 rounded mb-6 flex justify-between items-center">
     <div class="text-xl font-bold">فروشگاه احسان سه بعدی</div>
     <div class="space-x-4 space-x-reverse">
-      <a href="index.html" class="hover:underline">🛒 فروش</a>
+      <a href="index.html" class="hover:underline font-bold underline">🛒 فروش</a>
       <a href="products.html" class="hover:underline">📦 محصولات</a>
       <a href="customers.html" class="hover:underline">👥 مشتریان</a>
       <a href="history.html" class="hover:underline">📜 تاریخچه</a>
     </div>
   </nav>
 
+  <!-- محتوای اصلی -->
   <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
     <h1 class="text-3xl font-bold text-center mb-6">🛒 ثبت خرید</h1>
 
@@ -34,6 +36,33 @@
       <div class="mt-4 text-lg font-bold" id="totalPrice">💰 مجموع: ۰ ریال</div>
     </div>
 
+    <!-- درصد سود، تخفیف، مالیات -->
+    <div class="mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="profitPercent" class="block mb-1 font-medium text-gray-700">درصد سود</label>
+          <div class="flex items-center gap-2">
+            <input id="profitPercent" type="number" min="0" value="0" class="border p-2 rounded w-full text-center" placeholder="سود">
+            <span class="text-gray-600 font-bold">٪</span>
+          </div>
+        </div>
+        <div>
+          <label for="discountPercent" class="block mb-1 font-medium text-gray-700">درصد تخفیف</label>
+          <div class="flex items-center gap-2">
+            <input id="discountPercent" type="number" min="0" value="0" class="border p-2 rounded w-full text-center" placeholder="تخفیف">
+            <span class="text-gray-600 font-bold">٪</span>
+          </div>
+        </div>
+        <div>
+          <label for="taxPercent" class="block mb-1 font-medium text-gray-700">درصد مالیات</label>
+          <div class="flex items-center gap-2">
+            <input id="taxPercent" type="number" min="0" value="9" class="border p-2 rounded w-full text-center" placeholder="مالیات">
+            <span class="text-gray-600 font-bold">٪</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- اطلاعات مشتری -->
     <div class="mb-6">
       <h2 class="text-xl font-semibold mb-2">👤 اطلاعات مشتری (اختیاری)</h2>
@@ -41,10 +70,16 @@
       <input id="customerPhone" type="text" placeholder="شماره تلفن" class="border p-2 rounded w-full">
     </div>
 
+    
+
+    <!-- نمایش قیمت نهایی -->
+    <div class="mt-4 text-xl font-bold text-center" id="finalPrice">💳 قیمت نهایی: ۰ ریال</div>
+
     <!-- دکمه ثبت خرید -->
-    <button onclick="submitPurchase()" class="bg-blue-600 text-white px-6 py-3 rounded w-full text-xl">✅ ثبت خرید</button>
+    <button onclick="submitPurchase()" class="bg-blue-600 text-white px-6 py-3 rounded w-full text-xl mt-4">✅ ثبت خرید</button>
   </div>
 
+  <!-- اسکریپت -->
   <script>
     let products = JSON.parse(localStorage.getItem('products') || '[]');
     let purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
@@ -67,20 +102,35 @@
     function renderCart() {
       cartList.innerHTML = '';
       let total = 0;
+
       cart.forEach((p, i) => {
-        const unitPrice = p.price + (p.profit || 0) - (p.discount || 0);
-        const itemTotal = unitPrice * (p.quantity || 1);
+        const itemTotal = (p.price || 0) * (p.quantity || 1);
         total += itemTotal;
 
         const li = document.createElement('li');
         li.className = "bg-gray-100 p-2 rounded flex justify-between items-center";
         li.innerHTML = `
-          <div>${p.name} | کد: ${p.code} | تعداد: ${p.quantity} | قیمت نهایی: ${itemTotal.toLocaleString()} ریال</div>
+          <div>${p.name} | کد: ${p.code} | تعداد: ${p.quantity} | قیمت: ${itemTotal.toLocaleString()} ریال</div>
           <button onclick="removeFromCart(${i})" class="bg-red-500 text-white px-2 py-1 rounded">❌ حذف</button>
         `;
         cartList.appendChild(li);
       });
+
       totalPrice.textContent = `💰 مجموع: ${total.toLocaleString()} ریال`;
+      updateFinalPrice(total);
+    }
+
+    function updateFinalPrice(baseTotal) {
+      const profit = parseFloat(profitPercent.value) || 0;
+      const discount = parseFloat(discountPercent.value) || 0;
+      const tax = parseFloat(taxPercent.value) || 0;
+
+      let final = baseTotal;
+      final *= (1 + profit / 100);
+      final *= (1 - discount / 100);
+      final *= (1 + tax / 100);
+
+      finalPrice.textContent = `💳 قیمت نهایی: ${Math.round(final).toLocaleString()} ریال`;
     }
 
     function removeFromCart(index) {
@@ -94,14 +144,19 @@
       const name = customerName.value.trim();
       const phone = customerPhone.value.trim();
       const date = new Date().toLocaleString('fa-IR');
-      const total = cart.reduce((sum, p) => {
-        const unitPrice = p.price + (p.profit || 0) - (p.discount || 0);
-        return sum + unitPrice * (p.quantity || 1);
-      }, 0);
-      const timestamp = Date.now(); // عددی قابل مرتب‌سازی
+      const timestamp = Date.now();
 
+      const baseTotal = cart.reduce((sum, p) => sum + (p.price || 0) * (p.quantity || 1), 0);
+      const profit = parseFloat(profitPercent.value) || 0;
+      const discount = parseFloat(discountPercent.value) || 0;
+      const tax = parseFloat(taxPercent.value) || 0;
 
-      purchases.push({ name, phone, date, items: cart, total });
+      let finalTotal = baseTotal;
+      finalTotal *= (1 + profit / 100);
+      finalTotal *= (1 - discount / 100);
+      finalTotal *= (1 + tax / 100);
+
+      purchases.push({ name, phone, date, timestamp, items: cart, total: Math.round(finalTotal) });
       localStorage.setItem('purchases', JSON.stringify(purchases));
       cart = [];
       renderCart();
@@ -109,13 +164,12 @@
       alert("✅ خرید ثبت شد!");
     }
 
-    // 🎯 افزودن با Enter
     productCodeInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') addToCart();
     });
     productQtyInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') addToCart();
     });
-  </script>
-</body>
-</html>
+
+    profitPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
+    discountPercent.addEventListener('input
