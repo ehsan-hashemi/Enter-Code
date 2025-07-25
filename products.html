@@ -12,7 +12,7 @@
     <div class="text-xl font-bold">فروشگاه احسان</div>
     <div class="space-x-4 space-x-reverse">
       <a href="index.html" class="hover:underline">🛒 فروش</a>
-      <a href="products.html" class="hover:underline">📦 محصولات</a>
+      <a href="products.html" class="hover:underline font-bold underline">📦 محصولات</a>
       <a href="customers.html" class="hover:underline">👥 مشتریان</a>
       <a href="history.html" class="hover:underline">📜 تاریخچه</a>
     </div>
@@ -29,43 +29,24 @@
     </div>
     <button id="actionBtn" onclick="addProduct()" class="bg-green-500 text-white px-4 py-2 rounded mb-6">➕ افزودن محصول</button>
 
+    <!-- فیلتر جستجو -->
+    <div class="mb-4">
+      <input id="searchInput" type="text" placeholder="🔍 جستجو بر اساس نام، کد یا قیمت..." class="border p-2 rounded w-full">
+    </div>
+
     <!-- لیست محصولات -->
     <h2 class="text-xl font-semibold mb-2">📋 لیست محصولات</h2>
     <ul id="productList" class="space-y-2"></ul>
   </div>
 
-  <style>
-    .footer {
-  background-color: #f2f2f2;
-  color: #333;
-  text-align: center;
-  padding: 1em 0;
-  font-size: 0.9rem;
-  border-top: 1px solid #ddd;
-  direction: rtl;
-}
-
-.footer a {
-  color: #0077cc;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.footer a:hover {
-  text-decoration: underline;
-}
-  </style>
-
-  <br>
-
   <footer class="footer">
-      <div class="footer-content">
-        <p style="direction: ltr">
-          &copy; <span id="year">2025</span> Enter Code - All rights reserved.
-          <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
-        </p>
-      </div>
-    </footer>
+    <div class="footer-content">
+      <p style="direction: ltr">
+        &copy; <span id="year">2025</span> Enter Code - All rights reserved.
+        <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
+      </p>
+    </div>
+  </footer>
 
   <script>
     let products = JSON.parse(localStorage.getItem('products') || '[]');
@@ -115,21 +96,31 @@
     }
 
     function renderProducts() {
+      const query = searchInput.value.trim().toLowerCase();
       productList.innerHTML = '';
+
       products.forEach((p, i) => {
-        const li = document.createElement('li');
-        li.className = "bg-gray-100 p-2 rounded flex justify-between items-center";
-        li.innerHTML = `
-          <div>${p.name} | کد: ${p.code} | قیمت: ${p.price.toLocaleString()} ریال</div>
-          <div class="space-x-2 space-x-reverse">
-            <button onclick="editProduct(${i})" class="bg-yellow-500 text-white px-2 py-1 rounded">✏️ ویرایش</button>
-            <button onclick="deleteProduct(${i})" class="bg-red-500 text-white px-2 py-1 rounded">❌ حذف</button>
-          </div>
-        `;
-        productList.appendChild(li);
+        const match =
+          p.name.toLowerCase().includes(query) ||
+          p.code.toLowerCase().includes(query) ||
+          p.price.toString().includes(query);
+
+        if (!query || match) {
+          const li = document.createElement('li');
+          li.className = "bg-gray-100 p-2 rounded flex justify-between items-center";
+          li.innerHTML = `
+            <div>${p.name} | کد: ${p.code} | قیمت: ${p.price.toLocaleString()} ریال</div>
+            <div class="space-x-2 space-x-reverse">
+              <button onclick="editProduct(${i})" class="bg-yellow-500 text-white px-2 py-1 rounded">✏️ ویرایش</button>
+              <button onclick="deleteProduct(${i})" class="bg-red-500 text-white px-2 py-1 rounded">❌ حذف</button>
+            </div>
+          `;
+          productList.appendChild(li);
+        }
       });
     }
 
+    searchInput.addEventListener('input', renderProducts);
     renderProducts();
   </script>
 </body>
