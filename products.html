@@ -99,25 +99,31 @@
     }
 
     function addProduct() {
-      const name = pName.value.trim();
-      const code = pCode.value.trim();
-      const price = parseInt(pPrice.value);
+  const name = pName.value.trim();
+  const code = pCode.value.trim();
+  const price = parseInt(pPrice.value);
 
-      if (!name || !code || isNaN(price)) return alert("اطلاعات ناقص!");
+  if (!name || !code || isNaN(price)) return alert("اطلاعات ناقص!");
 
-      if (editIndex !== null) {
-        products[editIndex] = { name, code, price };
-        editIndex = null;
-        actionBtn.textContent = '➕ افزودن محصول';
-        actionBtn.className = 'bg-green-500 text-white px-4 py-2 rounded mb-6';
-      } else {
-        products.push({ name, code, price });
-      }
+  // بررسی تکراری بودن کد محصول
+  const duplicate = products.some(p => p.code === code);
+  if (editIndex === null && duplicate) {
+    return alert("⚠️ کد محصول تکراری است و قبلاً ثبت شده است!");
+  }
 
-      saveProducts();
-      renderProducts();
-      pName.value = pCode.value = pPrice.value = '';
-    }
+  if (editIndex !== null) {
+    products[editIndex] = { name, code, price };
+    editIndex = null;
+    actionBtn.textContent = '➕ افزودن محصول';
+    actionBtn.className = 'bg-green-500 text-white px-4 py-2 rounded mb-6';
+  } else {
+    products.push({ name, code, price });
+  }
+
+  saveProducts();
+  renderProducts();
+  pName.value = pCode.value = pPrice.value = '';
+}
 
     function deleteProduct(index) {
       if (confirm("آیا مطمئن هستید؟")) {
