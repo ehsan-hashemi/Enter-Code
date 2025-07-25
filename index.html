@@ -79,6 +79,37 @@
     <button onclick="submitPurchase()" class="bg-blue-600 text-white px-6 py-3 rounded w-full text-xl mt-4">✅ ثبت خرید</button>
   </div>
 
+  <style>
+    .footer {
+  background-color: #f2f2f2;
+  color: #333;
+  text-align: center;
+  padding: 1em 0;
+  font-size: 0.9rem;
+  border-top: 1px solid #ddd;
+  direction: rtl;
+}
+
+.footer a {
+  color: #0077cc;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+  </style>
+
+  <footer class="footer">
+      <div class="footer-content">
+        <p style="direction: ltr">
+          &copy; <span id="year">2025</span> Dastino App - All rights reserved.
+          <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
+        </p>
+      </div>
+    </footer>
+
   <!-- اسکریپت -->
   <script>
     let products = JSON.parse(localStorage.getItem('products') || '[]');
@@ -172,4 +203,12 @@
     });
 
     profitPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
-    discountPercent.addEventListener('input
+    discountPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
+    taxPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
+
+    function getBaseTotal() {
+      return cart.reduce((sum, p) => sum + (p.price || 0) * (p.quantity || 1), 0);
+    }
+  </script>
+</body>
+</html>
