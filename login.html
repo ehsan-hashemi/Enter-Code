@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحه ورود</title>
+    <style>
+        @font-face {
+            font-family: 'Vazir';
+            src: url('https://sgtmarket.ir/Vazir-Regular.ttf');
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazir';
+            background: linear-gradient(to bottom right, #00264d, #004080);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            color: #ffffff;
+            text-align: center;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            max-width: 320px; /* عرض مستطیل کوچک‌تر شده */
+            width: 85%; /* انعطاف بیشتر برای موبایل */
+        }
+        .login-container h1 {
+            margin-bottom: 15px;
+            font-size: 24px;
+            color: #00d4ff;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+        }
+        .input-field {
+            width: 95%; /* کوچک‌تر شدن فیلد ورودی */
+            padding: 8px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            font-size: 14px; /* کاهش فونت برای تناسب بیشتر */
+            box-sizing: border-box;
+            font-family: 'Vazir';
+        }
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .input-field:focus {
+            outline: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 8px #00d4ff;
+        }
+        .login-button {
+            width: 95%; /* هماهنگی با فیلدهای ورودی */
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(to right, #00aaff, #005f99);
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            font-family: 'Vazir';
+        }
+        .login-button:hover {
+            background: linear-gradient(to right, #00d4ff, #006bb3);
+            transform: scale(1.05);
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        @media (max-width: 768px) {
+            .login-container {
+                max-width: 280px; /* عرض کمتر برای موبایل */
+                padding: 15px 20px;
+            }
+            .login-container h1 {
+                font-size: 20px;
+            }
+            .input-field {
+                font-size: 12px; /* تطبیق اندازه فونت برای موبایل */
+            }
+            .login-button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>ورود به اپلیکیشن فروشگاه</h1>
+        <input type="text" id="code" placeholder="کد سفارش" class="input-field">
+        <input type="password" id="password" placeholder="رمز عبور" class="input-field">
+        <button onclick="login()" class="login-button">ورود</button>
+    </div>
+    <footer style="direction: ltr;">
+        ©️ 2025. <a href="https://ehsan-hashemi.ir" style="color: white;">Ehsan Group</a>
+    </footer>
+    <script>
+        function login() {
+            const code = document.getElementById('code').value;
+            const password = document.getElementById('password').value;
+
+            if (code === "001et23fg" && password === "1392ehsan") {
+                sessionStorage.setItem('authenticated', 'true');
+                window.location.href = "index.html";
+            } else {
+                alert("ایمیل یا رمز عبور اشتباه است!");
+            }
+        }
+    </script>
+</body>
+</html>

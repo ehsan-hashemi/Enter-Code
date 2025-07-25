@@ -24,6 +24,13 @@
     }
   </style>
 </head>
+
+<script>
+    // بررسی وضعیت ورود
+    if (!sessionStorage.getItem('authenticated')) {
+        window.location.href = "login.html"; // هدایت به صفحه ورود
+    }
+    </script>
 <body class="bg-gray-100 p-6 font-sans">
 
   <!-- ناوبری -->
