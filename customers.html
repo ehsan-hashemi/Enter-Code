@@ -20,6 +20,12 @@
 
   <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
     <h1 class="text-3xl font-bold text-center mb-6">👥 مشتریان</h1>
+
+    <!-- فیلتر جستجو -->
+    <div class="mb-4">
+      <input id="searchInput" type="text" placeholder="🔍 جستجو بر اساس نام یا شماره تلفن..." class="border p-2 rounded w-full">
+    </div>
+
     <ul id="customerList" class="space-y-4"></ul>
   </div>
 
@@ -73,56 +79,63 @@
 
     function renderCustomers() {
       const customers = groupByCustomer();
+      const query = searchInput.value.trim().toLowerCase();
       customerList.innerHTML = '';
 
       Object.entries(customers).forEach(([phone, data]) => {
-        const li = document.createElement('li');
-        li.className = "bg-gray-100 p-4 rounded shadow";
+        const nameMatch = data.name.toLowerCase().includes(query);
+        const phoneMatch = phone.toLowerCase().includes(query);
 
-        const header = document.createElement('div');
-        header.className = "cursor-pointer font-bold text-lg text-blue-700 flex justify-between items-center";
-        header.innerHTML = `👤 ${data.name} | 📞 ${phone}`;
+        if (!query || nameMatch || phoneMatch) {
+          const li = document.createElement('li');
+          li.className = "bg-gray-100 p-4 rounded shadow";
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = '🗑️ حذف مشتری';
-        deleteBtn.className = "bg-red-500 text-white px-2 py-1 rounded";
-        deleteBtn.onclick = () => {
-          if (confirm("آیا فقط از لیست مشتریان حذف شود؟")) {
-            hiddenCustomers.push(phone);
-            renderCustomers();
-          }
-        };
+          const header = document.createElement('div');
+          header.className = "cursor-pointer font-bold text-lg text-blue-700 flex justify-between items-center";
+          header.innerHTML = `👤 ${data.name} | 📞 ${phone}`;
 
-        const headerWrapper = document.createElement('div');
-        headerWrapper.className = "flex justify-between items-center";
-        headerWrapper.appendChild(header);
-        headerWrapper.appendChild(deleteBtn);
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = '🗑️ حذف مشتری';
+          deleteBtn.className = "bg-red-500 text-white px-2 py-1 rounded";
+          deleteBtn.onclick = () => {
+            if (confirm("آیا فقط از لیست مشتریان حذف شود؟")) {
+              hiddenCustomers.push(phone);
+              renderCustomers();
+            }
+          };
 
-        const details = document.createElement('div');
-        details.className = "mt-2 space-y-2 hidden";
+          const headerWrapper = document.createElement('div');
+          headerWrapper.className = "flex justify-between items-center";
+          headerWrapper.appendChild(header);
+          headerWrapper.appendChild(deleteBtn);
 
-        data.purchases.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(p => {
-          const itemNames = p.items.map(i => i.name).join(', ');
-          const div = document.createElement('div');
-          div.className = "bg-white p-2 rounded border";
-          div.innerHTML = `
-            🕒 ${p.date}<br>
-            🧾 محصولات: ${itemNames}<br>
-            💰 مجموع: ${p.total.toLocaleString()} ریال
-          `;
-          details.appendChild(div);
-        });
+          const details = document.createElement('div');
+          details.className = "mt-2 space-y-2 hidden";
 
-        header.onclick = () => {
-          details.style.display = details.style.display === 'none' ? 'block' : 'none';
-        };
+          data.purchases.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(p => {
+            const itemNames = p.items.map(i => i.name).join(', ');
+            const div = document.createElement('div');
+            div.className = "bg-white p-2 rounded border";
+            div.innerHTML = `
+              🕒 ${p.date}<br>
+              🧾 محصولات: ${itemNames}<br>
+              💰 مجموع: ${p.total.toLocaleString()} ریال
+            `;
+            details.appendChild(div);
+          });
 
-        li.appendChild(headerWrapper);
-        li.appendChild(details);
-        customerList.appendChild(li);
+          header.onclick = () => {
+            details.style.display = details.style.display === 'none' ? 'block' : 'none';
+          };
+
+          li.appendChild(headerWrapper);
+          li.appendChild(details);
+          customerList.appendChild(li);
+        }
       });
     }
 
+    searchInput.addEventListener('input', renderCustomers);
     renderCustomers();
   </script>
 </body>
