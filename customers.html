@@ -13,7 +13,7 @@
     <div class="space-x-4 space-x-reverse">
       <a href="index.html" class="hover:underline">🛒 فروش</a>
       <a href="products.html" class="hover:underline">📦 محصولات</a>
-      <a href="customers.html" class="hover:underline">👥 مشتریان</a>
+      <a href="customers.html" class="hover:underline font-bold underline">👥 مشتریان</a>
       <a href="history.html" class="hover:underline">📜 تاریخچه</a>
     </div>
   </nav>
@@ -48,21 +48,23 @@
   <br>
 
   <footer class="footer">
-      <div class="footer-content">
-        <p style="direction: ltr">
-          &copy; <span id="year">2025</span> Enter Code - All rights reserved.
-          <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
-        </p>
-      </div>
-    </footer>
+    <div class="footer-content">
+      <p style="direction: ltr">
+        &copy; <span id="year">2025</span> Enter Code - All rights reserved.
+        <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
+      </p>
+    </div>
+  </footer>
 
   <script>
     let purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
+    let hiddenCustomers = [];
 
     function groupByCustomer() {
       const map = {};
       purchases.forEach(p => {
         const key = p.phone || 'بدون شماره';
+        if (hiddenCustomers.includes(key)) return;
         if (!map[key]) map[key] = { name: p.name || 'نام نامشخص', purchases: [] };
         map[key].purchases.push(p);
       });
@@ -85,9 +87,8 @@
         deleteBtn.textContent = '🗑️ حذف مشتری';
         deleteBtn.className = "bg-red-500 text-white px-2 py-1 rounded";
         deleteBtn.onclick = () => {
-          if (confirm("آیا مطمئن هستید؟")) {
-            purchases = purchases.filter(p => (p.phone || 'بدون شماره') !== phone);
-            localStorage.setItem('purchases', JSON.stringify(purchases));
+          if (confirm("آیا فقط از لیست مشتریان حذف شود؟")) {
+            hiddenCustomers.push(phone);
             renderCustomers();
           }
         };

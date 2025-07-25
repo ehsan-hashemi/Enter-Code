@@ -14,7 +14,7 @@
       <a href="index.html" class="hover:underline">🛒 فروش</a>
       <a href="products.html" class="hover:underline">📦 محصولات</a>
       <a href="customers.html" class="hover:underline">👥 مشتریان</a>
-      <a href="history.html" class="hover:underline">📜 تاریخچه</a>
+      <a href="history.html" class="hover:underline font-bold underline">📜 تاریخچه</a>
     </div>
   </nav>
 
@@ -48,22 +48,29 @@
   <br>
 
   <footer class="footer">
-      <div class="footer-content">
-        <p style="direction: ltr">
-          &copy; <span id="year">2025</span> Enter Code - All rights reserved.
-          <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
-        </p>
-      </div>
-    </footer>
+    <div class="footer-content">
+      <p style="direction: ltr">
+        &copy; <span id="year">2025</span> Enter Code - All rights reserved.
+        <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
+      </p>
+    </div>
+  </footer>
 
   <script>
     let purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
 
+    function deletePurchase(timestamp) {
+      purchases = purchases.filter(p => p.timestamp !== timestamp);
+      localStorage.setItem('purchases', JSON.stringify(purchases));
+      renderHistory();
+    }
+
     function renderHistory() {
       historyList.innerHTML = '';
-      for (let i = 0; i < purchases.length; i++) {
-        const p = purchases[i];
-        const itemNames = p.items.map(i => i.name).join(', ');
+      purchases.sort((a, b) => b.timestamp - a.timestamp);
+
+      purchases.forEach(p => {
+        const itemNames = p.items.map(i => `${i.name} × ${i.quantity || 1}`).join(', ');
         const li = document.createElement('li');
         li.className = "bg-gray-100 p-4 rounded shadow";
         li.innerHTML = `
@@ -78,15 +85,13 @@
         deleteBtn.className = "bg-red-500 text-white px-2 py-1 rounded mt-2";
         deleteBtn.onclick = () => {
           if (confirm("آیا مطمئن هستید؟")) {
-            purchases.sort((a, b) => b.timestamp - a.timestamp);
-            localStorage.setItem('purchases', JSON.stringify(purchases));
-            renderHistory();
+            deletePurchase(p.timestamp);
           }
         };
 
         li.appendChild(deleteBtn);
         historyList.appendChild(li);
-      }
+      });
     }
 
     renderHistory();
