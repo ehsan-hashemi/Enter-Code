@@ -28,7 +28,7 @@
 
   <!-- ناوبری -->
   <nav class="bg-blue-600 text-white p-4 rounded mb-6 flex justify-between items-center">
-    <div class="text-xl font-bold">فروشگاه احسان</div>
+    <div class="text-xl font-bold">فروشگاه شما</div>
     <div class="space-x-4 space-x-reverse">
       <a href="index.html" class="hover:underline">🛒 فروش</a>
       <a href="products.html" class="hover:underline">📦 محصولات</a>
@@ -38,126 +38,163 @@
     </div>
   </nav>
 
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg space-y-6">
+  <div class="max-w-4xl mx-auto space-y-6">
 
-    <h1 class="text-3xl font-bold text-center">👤 پروفایل فروشنده</h1>
-
-    <!-- فرم پروفایل -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- پیش‌نمایش عکس -->
-      <div class="flex flex-col items-center">
-        <img id="profileImage" src="" alt="عکس پروفایل" class="w-32 h-32 rounded-full object-cover mb-4 border">
-        <label for="profilePhoto" class="font-medium mb-1">آدرس عکس پروفایل</label>
-        <input id="profilePhoto" type="text" placeholder="https://..." class="border p-2 rounded w-full text-sm">
-      </div>
-      <!-- اطلاعات متنی -->
-      <div class="space-y-4">
-        <div>
-          <label for="sellerName" class="block mb-1 font-medium">نام شما</label>
-          <input id="sellerName" type="text" placeholder="مثال: احسان هاشمی" class="border p-2 rounded w-full">
-        </div>
-        <div>
-          <label for="storeName" class="block mb-1 font-medium">نام فروشگاه</label>
-          <input id="storeName" type="text" placeholder="مثال: فروشگاه احسان سه بعدی" class="border p-2 rounded w-full">
-        </div>
-        <div>
-          <label for="sellerPhone" class="block mb-1 font-medium">شماره تلفن</label>
-          <input id="sellerPhone" type="text" placeholder="مثال: 09121234567" class="border p-2 rounded w-full">
-        </div>
-        <div>
-          <label for="sellerCode" class="block mb-1 font-medium">کد فروشنده</label>
-          <input id="sellerCode" type="text" placeholder="مثال: S1234" class="border p-2 rounded w-full">
+    <!-- پروفایل فروشنده (به‌روزرسانی شده) -->
+    <div class="bg-white p-4 rounded-lg shadow flex items-center gap-4 border-r-4 border-blue-600">
+      <img
+        src="https://ehsan-hashemi.ir/icon.jpeg"
+        alt="عکس پروفایل"
+        class="w-24 h-24 rounded-full border-2 border-blue-500 object-cover"
+      >
+      <div class="flex-1 text-left">
+        <div class="text-xl font-semibold text-gray-800">سید محمد احسان هاشمی</div>
+        <br>
+        <div class="text-sm text-gray-600">فروشگاه احسان</div>
+        <div class="mt-2 flex space-x-4 rtl:space-x-reverse text-xs text-gray-500">
+          <div>📞 09143654519</div>
+          <div>🆔 001et23fg</div>
         </div>
       </div>
     </div>
 
-    <button id="saveProfile" class="bg-green-500 text-white px-6 py-2 rounded mx-auto block">
-      💾 ذخیره اطلاعات پروفایل
-    </button>
-
-    <!-- آمار کلی -->
-    <div>
-      <h2 class="text-2xl font-bold mb-4 text-center">📊 آمار کلی</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-blue-100 p-4 rounded text-center">
-          <div class="text-lg font-semibold">خریدهای ماه</div>
-          <div id="statMonthPurchases" class="text-2xl font-bold">۰</div>
+    <!-- آمار روزانه -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold mb-4 text-center">📈 آمار روزانه</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div class="bg-blue-100 p-4 rounded">
+          <div class="text-lg font-semibold">خریدهای امروز</div>
+          <div id="statDayOrders" class="text-2xl font-bold">۰</div>
         </div>
-        <div class="bg-green-100 p-4 rounded text-center">
-          <div class="text-lg font-semibold">فروش ماهانه (ریال)</div>
-          <div id="statMonthRevenue" class="text-2xl font-bold">۰</div>
+        <div class="bg-yellow-100 p-4 rounded">
+          <div class="text-lg font-semibold">مشتریان امروز</div>
+          <div id="statDayCustomers" class="text-2xl font-bold">۰</div>
         </div>
-        <div class="bg-yellow-100 p-4 rounded text-center">
-          <div class="text-lg font-semibold">مشتریان ماه</div>
-          <div id="statMonthCustomers" class="text-2xl font-bold">۰</div>
+        <div class="bg-green-100 p-4 rounded">
+          <div class="text-lg font-semibold">درآمد امروز (ریال)</div>
+          <div id="statDayRevenue" class="text-2xl font-bold">۰</div>
         </div>
-        <div class="bg-purple-100 p-4 rounded text-center">
-          <div class="text-lg font-semibold">کل مشتریان</div>
-          <div id="statTotalCustomers" class="text-2xl font-bold">۰</div>
+        <div class="bg-purple-100 p-4 rounded">
+          <div class="text-lg font-semibold">سود امروز (ریال)</div>
+          <div id="statDayProfit" class="text-2xl font-bold">۰</div>
         </div>
       </div>
+    </div>
+
+    <!-- آمار ماهانه -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold mb-4 text-center">📊 آمار ماهانه</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div class="bg-blue-100 p-4 rounded">
+          <div class="text-lg font-semibold">خریدهای این ماه</div>
+          <div id="statMonthOrders" class="text-2xl font-bold">۰</div>
+        </div>
+        <div class="bg-yellow-100 p-4 rounded">
+          <div class="text-lg font-semibold">مشتریان این ماه</div>
+          <div id="statMonthCustomers" class="text-2xl font-bold">۰</div>
+        </div>
+        <div class="bg-green-100 p-4 rounded">
+          <div class="text-lg font-semibold">درآمد این ماه (ریال)</div>
+          <div id="statMonthRevenue" class="text-2xl font-bold">۰</div>
+        </div>
+        <div class="bg-purple-100 p-4 rounded">
+          <div class="text-lg font-semibold">سود این ماه (ریال)</div>
+          <div id="statMonthProfit" class="text-2xl font-bold">۰</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- آمار سالانه -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold mb-4 text-center">📅 آمار سالانه</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div class="bg-blue-100 p-4 rounded">
+          <div class="text-lg font-semibold">خریدهای امسال</div>
+          <div id="statYearOrders" class="text-2xl font-bold">۰</div>
+        </div>
+        <div class="bg-yellow-100 p-4 rounded">
+          <div class="text-lg font-semibold">مشتریان امسال</div>
+          <div id="statYearCustomers" class="text-2xl font-bold">۰</div>
+        </div>
+        <div class="bg-green-100 p-4 rounded">
+          <div class="text-lg font-semibold">درآمد امسال (ریال)</div>
+          <div id="statYearRevenue" class="text-2xl font-bold">۰</div>
+        </div>
+        <div class="bg-purple-100 p-4 rounded">
+          <div class="text-lg font-semibold">سود امسال (ریال)</div>
+          <div id="statYearProfit" class="text-2xl font-bold">۰</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- آمار کل مشتریان -->
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+      <div class="text-xl font-semibold">👥 کل مشتریان</div>
+      <div id="statTotalCustomers" class="text-3xl font-bold mt-2">۰</div>
     </div>
 
   </div>
 
   <footer class="footer mt-6">
-    <div class="footer-content">
-      <p style="direction: ltr">
-        &copy; <span id="year">2025</span> Enter Code - All rights reserved.
-        <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
-      </p>
-    </div>
+    <p style="direction: ltr">
+      &copy; <span id="year">2025</span> همه حقوق محفوظ است.
+      <a href="https://your-website.com" target="_blank">نام شما</a>
+    </p>
   </footer>
 
   <script>
-    // بارگذاری اطلاعات از LocalStorage
-    const profileKey = 'sellerProfile';
+    // بارگذاری خریدها از LocalStorage
     const purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
 
-    function loadProfile() {
-      const p = JSON.parse(localStorage.getItem(profileKey) || '{}');
-      if (p.photo) profileImage.src = p.photo;
-      if (p.name) sellerName.value = p.name;
-      if (p.store) storeName.value = p.store;
-      if (p.phone) sellerPhone.value = p.phone;
-      if (p.code) sellerCode.value = p.code;
-    }
-
-    function saveProfile() {
-      const p = {
-        photo: profilePhoto.value.trim(),
-        name: sellerName.value.trim(),
-        store: storeName.value.trim(),
-        phone: sellerPhone.value.trim(),
-        code: sellerCode.value.trim()
-      };
-      localStorage.setItem(profileKey, JSON.stringify(p));
-      if (p.photo) profileImage.src = p.photo;
-      alert('✅ اطلاعات پروفایل ذخیره شد!');
-    }
-
-    // محاسبه آمار
     function computeStats() {
       const now = new Date();
+      const dayStart   = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-      const monthPurchases = purchases.filter(p => p.timestamp >= monthStart);
-      const monthRevenue = monthPurchases.reduce((s, p) => s + (p.total || 0), 0);
-      const monthCustomers = new Set(monthPurchases.map(p => p.phone || '')).size;
-      const totalCustomers = new Set(purchases.map(p => p.phone || '')).size;
+      const yearStart  = new Date(now.getFullYear(), 0, 1).getTime();
 
-      statMonthPurchases.textContent = monthPurchases.length;
-      statMonthRevenue.textContent = monthRevenue.toLocaleString();
-      statMonthCustomers.textContent = monthCustomers;
-      statTotalCustomers.textContent = totalCustomers;
+      // فیلترها
+      const dayList   = purchases.filter(p => p.timestamp >= dayStart);
+      const monthList = purchases.filter(p => p.timestamp >= monthStart);
+      const yearList  = purchases.filter(p => p.timestamp >= yearStart);
+
+      // منطق محاسبه
+      function stats(list) {
+        const orders   = list.length;
+        const customers= new Set(list.map(p => p.phone || '')).size;
+        const revenue  = list.reduce((sum, p) => sum + (p.total || 0), 0);
+        const profit   = list.reduce((sum, p) => {
+          const base = p.items.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0);
+          return sum + ((p.total || 0) - base);
+        }, 0);
+        return { orders, customers, revenue, profit };
+      }
+
+      const d = stats(dayList);
+      const m = stats(monthList);
+      const y = stats(yearList);
+      const totalCustomers = new Set(purchases.map(p => p.phone||'')).size;
+
+      // نمایش
+      document.getElementById('statDayOrders')   .textContent = d.orders;
+      document.getElementById('statDayCustomers').textContent = d.customers;
+      document.getElementById('statDayRevenue')  .textContent = d.revenue.toLocaleString();
+      document.getElementById('statDayProfit')   .textContent = d.profit.toLocaleString();
+
+      document.getElementById('statMonthOrders')   .textContent = m.orders;
+      document.getElementById('statMonthCustomers').textContent = m.customers;
+      document.getElementById('statMonthRevenue')  .textContent = m.revenue.toLocaleString();
+      document.getElementById('statMonthProfit')   .textContent = m.profit.toLocaleString();
+
+      document.getElementById('statYearOrders')   .textContent = y.orders;
+      document.getElementById('statYearCustomers').textContent = y.customers;
+      document.getElementById('statYearRevenue')  .textContent = y.revenue.toLocaleString();
+      document.getElementById('statYearProfit')   .textContent = y.profit.toLocaleString();
+
+      document.getElementById('statTotalCustomers').textContent = totalCustomers;
+      document.getElementById('year')           .textContent = now.getFullYear();
     }
 
-    // رویدادها
-    saveProfile.addEventListener('click', saveProfile);
-
-    // مقداردهی اولیه
-    loadProfile();
-    computeStats();
-    document.getElementById('year').textContent = new Date().getFullYear();
+    document.addEventListener('DOMContentLoaded', computeStats);
   </script>
 </body>
 </html>
