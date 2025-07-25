@@ -49,11 +49,15 @@
       >
       <div class="flex-1 text-left">
         <div class="text-xl font-semibold text-gray-800">سید محمد احسان هاشمی</div>
-        <br>
         <div class="text-sm text-gray-600">فروشگاه احسان</div>
         <div class="mt-2 flex space-x-4 rtl:space-x-reverse text-xs text-gray-500">
           <div>📞 09143654519</div>
           <div>🆔 001et23fg</div>
+        </div>
+
+        <!-- 🏷️ تعداد کل محصولات -->
+        <div class="mt-2 text-sm text-gray-600">
+          🏷️ تعداد محصولات: <span id="statTotalProducts">۰</span>
         </div>
       </div>
     </div>
@@ -143,7 +147,6 @@
   </footer>
 
   <script>
-    // بارگذاری خریدها از LocalStorage
     const purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
 
     function computeStats() {
@@ -157,41 +160,44 @@
       const monthList = purchases.filter(p => p.timestamp >= monthStart);
       const yearList  = purchases.filter(p => p.timestamp >= yearStart);
 
-      // منطق محاسبه
+      // منطق محاسبه آمار
       function stats(list) {
-        const orders   = list.length;
-        const customers= new Set(list.map(p => p.phone || '')).size;
-        const revenue  = list.reduce((sum, p) => sum + (p.total || 0), 0);
-        const profit   = list.reduce((sum, p) => {
+        const orders    = list.length;
+        const customers = new Set(list.map(p => p.phone || '')).size;
+        const revenue   = list.reduce((sum, p) => sum + (p.total || 0), 0);
+        const profit    = list.reduce((sum, p) => {
           const base = p.items.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0);
           return sum + ((p.total || 0) - base);
         }, 0);
         return { orders, customers, revenue, profit };
       }
 
-      const d = stats(dayList);
-      const m = stats(monthList);
-      const y = stats(yearList);
-      const totalCustomers = new Set(purchases.map(p => p.phone||'')).size;
+      const d = stats(dayList), m = stats(monthList), y = stats(yearList);
+      const totalCustomers = new Set(purchases.map(p => p.phone || '')).size;
 
-      // نمایش
-      document.getElementById('statDayOrders')   .textContent = d.orders;
-      document.getElementById('statDayCustomers').textContent = d.customers;
-      document.getElementById('statDayRevenue')  .textContent = d.revenue.toLocaleString();
-      document.getElementById('statDayProfit')   .textContent = d.profit.toLocaleString();
+      // محصولات
+      const products = JSON.parse(localStorage.getItem('products') || '[]');
+      const totalProducts = products.length;
 
-      document.getElementById('statMonthOrders')   .textContent = m.orders;
-      document.getElementById('statMonthCustomers').textContent = m.customers;
-      document.getElementById('statMonthRevenue')  .textContent = m.revenue.toLocaleString();
-      document.getElementById('statMonthProfit')   .textContent = m.profit.toLocaleString();
+      // رندر مقادیر
+      document.getElementById('statDayOrders')      .textContent = d.orders;
+      document.getElementById('statDayCustomers')   .textContent = d.customers;
+      document.getElementById('statDayRevenue')     .textContent = d.revenue.toLocaleString();
+      document.getElementById('statDayProfit')      .textContent = d.profit.toLocaleString();
 
-      document.getElementById('statYearOrders')   .textContent = y.orders;
-      document.getElementById('statYearCustomers').textContent = y.customers;
-      document.getElementById('statYearRevenue')  .textContent = y.revenue.toLocaleString();
-      document.getElementById('statYearProfit')   .textContent = y.profit.toLocaleString();
+      document.getElementById('statMonthOrders')    .textContent = m.orders;
+      document.getElementById('statMonthCustomers') .textContent = m.customers;
+      document.getElementById('statMonthRevenue')   .textContent = m.revenue.toLocaleString();
+      document.getElementById('statMonthProfit')    .textContent = m.profit.toLocaleString();
+
+      document.getElementById('statYearOrders')     .textContent = y.orders;
+      document.getElementById('statYearCustomers')  .textContent = y.customers;
+      document.getElementById('statYearRevenue')    .textContent = y.revenue.toLocaleString();
+      document.getElementById('statYearProfit')     .textContent = y.profit.toLocaleString();
 
       document.getElementById('statTotalCustomers').textContent = totalCustomers;
-      document.getElementById('year')           .textContent = now.getFullYear();
+      document.getElementById('statTotalProducts') .textContent = totalProducts;
+      document.getElementById('year')              .textContent = now.getFullYear();
     }
 
     document.addEventListener('DOMContentLoaded', computeStats);
