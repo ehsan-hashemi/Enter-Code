@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>پروفایل فروشنده</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .footer {
+      background-color: #f2f2f2;
+      color: #333;
+      text-align: center;
+      padding: 1em 0;
+      font-size: 0.9rem;
+      border-top: 1px solid #ddd;
+      direction: rtl;
+    }
+    .footer a {
+      color: #0077cc;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-6 font-sans">
+
+  <!-- ناوبری -->
+  <nav class="bg-blue-600 text-white p-4 rounded mb-6 flex justify-between items-center">
+    <div class="text-xl font-bold">فروشگاه احسان</div>
+    <div class="space-x-4 space-x-reverse">
+      <a href="index.html" class="hover:underline">🛒 فروش</a>
+      <a href="products.html" class="hover:underline">📦 محصولات</a>
+      <a href="customers.html" class="hover:underline">👥 مشتریان</a>
+      <a href="history.html" class="hover:underline">📜 تاریخچه</a>
+      <a href="profile.html" class="hover:underline font-bold underline">👤 پروفایل</a>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg space-y-6">
+
+    <h1 class="text-3xl font-bold text-center">👤 پروفایل فروشنده</h1>
+
+    <!-- فرم پروفایل -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- پیش‌نمایش عکس -->
+      <div class="flex flex-col items-center">
+        <img id="profileImage" src="" alt="عکس پروفایل" class="w-32 h-32 rounded-full object-cover mb-4 border">
+        <label for="profilePhoto" class="font-medium mb-1">آدرس عکس پروفایل</label>
+        <input id="profilePhoto" type="text" placeholder="https://..." class="border p-2 rounded w-full text-sm">
+      </div>
+      <!-- اطلاعات متنی -->
+      <div class="space-y-4">
+        <div>
+          <label for="sellerName" class="block mb-1 font-medium">نام شما</label>
+          <input id="sellerName" type="text" placeholder="مثال: احسان هاشمی" class="border p-2 rounded w-full">
+        </div>
+        <div>
+          <label for="storeName" class="block mb-1 font-medium">نام فروشگاه</label>
+          <input id="storeName" type="text" placeholder="مثال: فروشگاه احسان سه بعدی" class="border p-2 rounded w-full">
+        </div>
+        <div>
+          <label for="sellerPhone" class="block mb-1 font-medium">شماره تلفن</label>
+          <input id="sellerPhone" type="text" placeholder="مثال: 09121234567" class="border p-2 rounded w-full">
+        </div>
+        <div>
+          <label for="sellerCode" class="block mb-1 font-medium">کد فروشنده</label>
+          <input id="sellerCode" type="text" placeholder="مثال: S1234" class="border p-2 rounded w-full">
+        </div>
+      </div>
+    </div>
+
+    <button id="saveProfile" class="bg-green-500 text-white px-6 py-2 rounded mx-auto block">
+      💾 ذخیره اطلاعات پروفایل
+    </button>
+
+    <!-- آمار کلی -->
+    <div>
+      <h2 class="text-2xl font-bold mb-4 text-center">📊 آمار کلی</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-blue-100 p-4 rounded text-center">
+          <div class="text-lg font-semibold">خریدهای ماه</div>
+          <div id="statMonthPurchases" class="text-2xl font-bold">۰</div>
+        </div>
+        <div class="bg-green-100 p-4 rounded text-center">
+          <div class="text-lg font-semibold">فروش ماهانه (ریال)</div>
+          <div id="statMonthRevenue" class="text-2xl font-bold">۰</div>
+        </div>
+        <div class="bg-yellow-100 p-4 rounded text-center">
+          <div class="text-lg font-semibold">مشتریان ماه</div>
+          <div id="statMonthCustomers" class="text-2xl font-bold">۰</div>
+        </div>
+        <div class="bg-purple-100 p-4 rounded text-center">
+          <div class="text-lg font-semibold">کل مشتریان</div>
+          <div id="statTotalCustomers" class="text-2xl font-bold">۰</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer mt-6">
+    <div class="footer-content">
+      <p style="direction: ltr">
+        &copy; <span id="year">2025</span> Enter Code - All rights reserved.
+        <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // بارگذاری اطلاعات از LocalStorage
+    const profileKey = 'sellerProfile';
+    const purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
+
+    function loadProfile() {
+      const p = JSON.parse(localStorage.getItem(profileKey) || '{}');
+      if (p.photo) profileImage.src = p.photo;
+      if (p.name) sellerName.value = p.name;
+      if (p.store) storeName.value = p.store;
+      if (p.phone) sellerPhone.value = p.phone;
+      if (p.code) sellerCode.value = p.code;
+    }
+
+    function saveProfile() {
+      const p = {
+        photo: profilePhoto.value.trim(),
+        name: sellerName.value.trim(),
+        store: storeName.value.trim(),
+        phone: sellerPhone.value.trim(),
+        code: sellerCode.value.trim()
+      };
+      localStorage.setItem(profileKey, JSON.stringify(p));
+      if (p.photo) profileImage.src = p.photo;
+      alert('✅ اطلاعات پروفایل ذخیره شد!');
+    }
+
+    // محاسبه آمار
+    function computeStats() {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+      const monthPurchases = purchases.filter(p => p.timestamp >= monthStart);
+      const monthRevenue = monthPurchases.reduce((s, p) => s + (p.total || 0), 0);
+      const monthCustomers = new Set(monthPurchases.map(p => p.phone || '')).size;
+      const totalCustomers = new Set(purchases.map(p => p.phone || '')).size;
+
+      statMonthPurchases.textContent = monthPurchases.length;
+      statMonthRevenue.textContent = monthRevenue.toLocaleString();
+      statMonthCustomers.textContent = monthCustomers;
+      statTotalCustomers.textContent = totalCustomers;
+    }
+
+    // رویدادها
+    saveProfile.addEventListener('click', saveProfile);
+
+    // مقداردهی اولیه
+    loadProfile();
+    computeStats();
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
