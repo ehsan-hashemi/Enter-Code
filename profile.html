@@ -40,22 +40,20 @@
 
   <div class="max-w-4xl mx-auto space-y-6">
 
-    <!-- پروفایل فروشنده (به‌روزرسانی شده) -->
-    <div class="bg-white p-4 rounded-lg shadow flex items-center gap-4 border-r-4 border-blue-600">
+    <!-- پروفایل فروشنده -->
+    <div class="bg-white p-4 rounded-lg shadow flex items-center gap-4 border-r-4 border-blue-600 flex-row-reverse">
       <img
         src="https://ehsan-hashemi.ir/icon.jpeg"
         alt="عکس پروفایل"
         class="w-24 h-24 rounded-full border-2 border-blue-500 object-cover"
       >
-      <div class="flex-1 text-left">
+      <div class="flex-1 text-right">
         <div class="text-xl font-semibold text-gray-800">سید محمد احسان هاشمی</div>
         <div class="text-sm text-gray-600">فروشگاه احسان</div>
         <div class="mt-2 flex space-x-4 rtl:space-x-reverse text-xs text-gray-500">
           <div>📞 09143654519</div>
           <div>🆔 001et23fg</div>
         </div>
-
-        <!-- 🏷️ تعداد کل محصولات -->
         <div class="mt-2 text-sm text-gray-600">
           🏷️ تعداد محصولات: <span id="statTotalProducts">۰</span>
         </div>
@@ -139,8 +137,6 @@
 
   </div>
 
-  <br>
-
   <footer class="footer">
     <div class="footer-content">
       <p style="direction: ltr">
@@ -159,12 +155,10 @@
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
       const yearStart  = new Date(now.getFullYear(), 0, 1).getTime();
 
-      // فیلترها
       const dayList   = purchases.filter(p => p.timestamp >= dayStart);
       const monthList = purchases.filter(p => p.timestamp >= monthStart);
       const yearList  = purchases.filter(p => p.timestamp >= yearStart);
 
-      // منطق محاسبه آمار
       function stats(list) {
         const orders    = list.length;
         const customers = new Set(list.map(p => p.phone || '')).size;
@@ -178,12 +172,9 @@
 
       const d = stats(dayList), m = stats(monthList), y = stats(yearList);
       const totalCustomers = new Set(purchases.map(p => p.phone || '')).size;
-
-      // محصولات
       const products = JSON.parse(localStorage.getItem('products') || '[]');
       const totalProducts = products.length;
 
-      // رندر مقادیر
       document.getElementById('statDayOrders')      .textContent = d.orders;
       document.getElementById('statDayCustomers')   .textContent = d.customers;
       document.getElementById('statDayRevenue')     .textContent = d.revenue.toLocaleString();
