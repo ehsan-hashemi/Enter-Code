@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>فروشگاه - ثبت خرید</title>
-
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Html5Qrcode برای اسکن بارکد -->
   <script src="https://unpkg.com/html5-qrcode"></script>
-
   <style>
     @font-face {
       font-family: "Vazir";
@@ -35,15 +33,14 @@
       text-decoration: underline;
     }
   </style>
+
+  <!-- بررسی وضعیت ورود -->
+  <script>
+    if (!sessionStorage.getItem('authenticated')) {
+      window.location.href = "login.html";
+    }
+  </script>
 </head>
-
-<script>
-  // بررسی وضعیت ورود
-  if (!sessionStorage.getItem('authenticated')) {
-    window.location.href = "login.html";
-  }
-</script>
-
 <body class="bg-gray-100 p-6 font-sans">
 
   <!-- ناوبری -->
@@ -60,29 +57,27 @@
 
   <!-- محتوای اصلی -->
   <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+
     <h1 class="text-3xl font-bold text-center mb-6">🛒 ثبت خرید</h1>
 
-    <!-- ورودی کد محصول + تعداد + دکمه اسکن -->
+    <!-- ورودی کد محصول + تعداد + دکمه‌ها -->
     <div class="flex gap-2 mb-4 items-center">
       <input id="productCodeInput" type="text" placeholder="کد محصول را وارد کنید"
              class="border p-2 rounded w-full" style="height: 65px;">
       <input id="productQtyInput" type="number" min="1" value="1"
              class="border p-2 rounded w-24 text-center" style="height: 65px;" title="تعداد">
       <button onclick="addToCart()"
-              class="bg-green-500 text-white px-4 py-2 rounded">➕ افزودن
-      </button>
+              class="bg-green-500 text-white px-4 py-2 rounded">➕ افزودن</button>
       <button onclick="toggleScanner()"
-              class="bg-blue-500 text-white px-4 py-2 rounded">📷 اسکن
-      </button>
+              class="bg-blue-500 text-white px-4 py-2 rounded">📷 اسکن</button>
     </div>
 
-    <!-- پنجره کوچک وبکم برای اسکن -->
+    <!-- پنجره وبکم برای اسکن -->
     <div id="scannerContainer"
          class="hidden fixed top-4 left-4 bg-white border rounded shadow-lg z-50">
       <div id="qr-reader" style="width: 250px; height: 250px;"></div>
       <button onclick="stopScanner()"
-              class="bg-red-500 text-white w-full py-1">❌ بستن
-      </button>
+              class="bg-red-500 text-white w-full py-1">❌ بستن</button>
     </div>
 
     <!-- لیست خرید -->
@@ -131,7 +126,7 @@
              class="border p-2 rounded w-full">
     </div>
 
-    <!-- نمایش قیمت نهایی -->
+    <!-- قیمت نهایی -->
     <div class="mt-4 text-xl font-bold text-center" id="finalPrice">💳 قیمت نهایی: ۰ ریال</div>
 
     <!-- دکمه ثبت خرید -->
@@ -140,25 +135,20 @@
     </button>
   </div>
 
-  <br>
   <footer class="footer">
-    <div class="footer-content">
-      <p style="direction: ltr">
-        &copy; <span id="year">2025</span> Enter Code - All rights reserved.
-        <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
-      </p>
-    </div>
+    <p style="direction: ltr">
+      &copy; <span id="year">2025</span> Enter Code - All rights reserved.
+      <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
+    </p>
   </footer>
 
-  <!-- اسکریپت اصلی -->
   <script>
-    // داده‌ها
-    let products   = JSON.parse(localStorage.getItem('products')   || '[]');
-    let purchases  = JSON.parse(localStorage.getItem('purchases')  || '[]');
-    let cart       = [];
+    // داده‌ها و سبد
+    let products  = JSON.parse(localStorage.getItem('products')  || '[]');
+    let purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
+    let cart      = [];
 
     // المان‌های داینامیک
-    const scannerContainer = document.getElementById('scannerContainer');
     const productCodeInput = document.getElementById('productCodeInput');
     const productQtyInput  = document.getElementById('productQtyInput');
     const cartList         = document.getElementById('cartList');
@@ -169,13 +159,16 @@
     const taxPercent       = document.getElementById('taxPercent');
     const customerName     = document.getElementById('customerName');
     const customerPhone    = document.getElementById('customerPhone');
+    const scannerContainer = document.getElementById('scannerContainer');
 
-    // debounce برای جلوگیری از ثبت چندباره
-    let lastScannedCode   = "";
-    let lastScanTime      = 0;
-    const scanDebounceDelay = 2000; // ۲۰۰۰ میلی‌ثانیه = ۲ ثانیه
+    // debounce برای اسکن
+    let scannerActive   = false;
+    let html5QrCode     = null;
+    let lastScannedCode = "";
+    let lastScanTime    = 0;
+    const scanDebounceDelay = 2000;
 
-    // افزودن محصول به سبد
+    // افزودن یا افزایش تعداد محصول
     function addToCart() {
       const code     = productCodeInput.value.trim();
       const quantity = parseInt(productQtyInput.value);
@@ -186,18 +179,23 @@
       if (!product) {
         return alert("محصولی با این کد یافت نشد!");
       }
-      cart.push({ ...product, quantity });
+      const idx = cart.findIndex(item => item.code === code);
+      if (idx > -1) {
+        cart[idx].quantity += quantity;
+      } else {
+        cart.push({ ...product, quantity });
+      }
       productCodeInput.value = '';
       productQtyInput.value  = 1;
       renderCart();
     }
 
-    // نمایش سبد خرید
+    // رندر سبد
     function renderCart() {
       cartList.innerHTML = '';
       let total = 0;
       cart.forEach((p, i) => {
-        const itemTotal = (p.price || 0) * (p.quantity || 1);
+        const itemTotal = (p.price || 0) * p.quantity;
         total += itemTotal;
         const li = document.createElement('li');
         li.className = "bg-gray-100 p-2 rounded flex justify-between items-center";
@@ -209,6 +207,12 @@
       });
       totalPrice.textContent = `💰 مجموع: ${total.toLocaleString()} ریال`;
       updateFinalPrice(total);
+    }
+
+    // حذف آیتم
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      renderCart();
     }
 
     // محاسبه و نمایش قیمت نهایی
@@ -223,10 +227,20 @@
       finalPrice.textContent = `💳 قیمت نهایی: ${Math.round(finalVal).toLocaleString()} ریال`;
     }
 
-    // حذف آیتم از سبد
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      renderCart();
+    // دکمه Enter برای افزودن سریع
+    productCodeInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') addToCart();
+    });
+    productQtyInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') addToCart();
+    });
+
+    profitPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
+    discountPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
+    taxPercent.addEventListener('input', ()      => updateFinalPrice(getBaseTotal()));
+
+    function getBaseTotal() {
+      return cart.reduce((sum, p) => sum + (p.price || 0) * p.quantity, 0);
     }
 
     // ثبت نهایی خرید
@@ -238,7 +252,7 @@
       const phone     = customerPhone.value.trim();
       const date      = new Date().toLocaleString('fa-IR');
       const timestamp = Date.now();
-      const baseTotal = cart.reduce((s, p) => s + (p.price || 0) * (p.quantity || 1), 0);
+      const baseTotal = getBaseTotal();
       let finalTotal  = baseTotal;
       finalTotal *= (1 + (parseFloat(profitPercent.value)   || 0) / 100);
       finalTotal *= (1 - (parseFloat(discountPercent.value) || 0) / 100);
@@ -255,25 +269,7 @@
       alert("✅ خرید ثبت شد!");
     }
 
-    // کلیدهای Enter برای افزودن سریع
-    productCodeInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') addToCart();
-    });
-    productQtyInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') addToCart();
-    });
-    profitPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
-    discountPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
-    taxPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
-
-    function getBaseTotal() {
-      return cart.reduce((s, p) => s + (p.price || 0) * (p.quantity || 1), 0);
-    }
-
-    // ==== بخش اسکن بارکد ====
-    let scannerActive = false;
-    let html5QrCode   = null;
-
+    // کنترل اسکنر
     function toggleScanner() {
       scannerActive ? stopScanner() : startScanner();
     }
@@ -284,28 +280,27 @@
       html5QrCode.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 200, height: 200 } },
-        qrCodeMessage => {
-          const code = qrCodeMessage.trim();
+        qrMessage => {
+          const code = qrMessage.trim();
           const now  = Date.now();
-          // debounce: اگر کمتر از ۲ ثانیه از آخرین اسکن گذشته و بارکد یکسانه، نادیده بگیر
           if (code === lastScannedCode && (now - lastScanTime) < scanDebounceDelay) {
             return;
           }
           lastScannedCode = code;
           lastScanTime    = now;
-
-          // منطق اضافه کردن محصول
           const product = products.find(p => p.code === code);
-          if (product) {
-            cart.push({ ...product, quantity: 1 });
-            renderCart();
-          } else {
-            alert("❌ محصولی با این بارکد یافت نشد!");
+          if (!product) {
+            return alert("❌ محصولی با این بارکد یافت نشد!");
           }
+          const idx = cart.findIndex(item => item.code === code);
+          if (idx > -1) {
+            cart[idx].quantity += 1;
+          } else {
+            cart.push({ ...product, quantity: 1 });
+          }
+          renderCart();
         },
-        errorMessage => {
-          // خطاهای لحظه‌ای اسکن را می‌توان اینجا لاگ کرد
-        }
+        errorMsg => { /* لاگ اختیاری */ }
       )
       .then(() => { scannerActive = true; })
       .catch(err => alert("خطا در فعال‌سازی دوربین: " + err));
@@ -322,8 +317,11 @@
         .catch(err => console.warn("خطا در توقف اسکنر:", err));
     }
 
-    // بروز‌رسانی سال در فوتر
+    // به‌روز رسانی سال در فوتر
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // رندر اولیه
+    renderCart();
   </script>
 </body>
 </html>
