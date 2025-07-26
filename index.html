@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>فروشگاه - ثبت خرید</title>
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Html5Qrcode برای اسکن بارکد -->
   <script src="https://unpkg.com/html5-qrcode"></script>
+
   <style>
     @font-face {
       font-family: "Vazir";
@@ -34,8 +36,8 @@
     }
   </style>
 
-  <!-- بررسی وضعیت ورود -->
   <script>
+    // بررسی وضعیت ورود
     if (!sessionStorage.getItem('authenticated')) {
       window.location.href = "login.html";
     }
@@ -57,7 +59,6 @@
 
   <!-- محتوای اصلی -->
   <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-
     <h1 class="text-3xl font-bold text-center mb-6">🛒 ثبت خرید</h1>
 
     <!-- ورودی کد محصول + تعداد + دکمه‌ها -->
@@ -66,18 +67,15 @@
              class="border p-2 rounded w-full" style="height: 65px;">
       <input id="productQtyInput" type="number" min="1" value="1"
              class="border p-2 rounded w-24 text-center" style="height: 65px;" title="تعداد">
-      <button onclick="addToCart()"
-              class="bg-green-500 text-white px-4 py-2 rounded">➕ افزودن</button>
-      <button onclick="toggleScanner()"
-              class="bg-blue-500 text-white px-4 py-2 rounded">📷 اسکن</button>
+      <button onclick="addToCart()" class="bg-green-500 text-white px-4 py-2 rounded">➕ افزودن</button>
+      <button onclick="toggleScanner()" class="bg-blue-500 text-white px-4 py-2 rounded">📷 اسکن</button>
     </div>
 
     <!-- پنجره وبکم برای اسکن -->
     <div id="scannerContainer"
          class="hidden fixed top-4 left-4 bg-white border rounded shadow-lg z-50">
       <div id="qr-reader" style="width: 250px; height: 250px;"></div>
-      <button onclick="stopScanner()"
-              class="bg-red-500 text-white w-full py-1">❌ بستن</button>
+      <button onclick="stopScanner()" class="bg-red-500 text-white w-full py-1">❌ بستن</button>
     </div>
 
     <!-- لیست خرید -->
@@ -126,13 +124,12 @@
              class="border p-2 rounded w-full">
     </div>
 
-    <!-- قیمت نهایی -->
+    <!-- نمایش قیمت نهایی -->
     <div class="mt-4 text-xl font-bold text-center" id="finalPrice">💳 قیمت نهایی: ۰ ریال</div>
 
     <!-- دکمه ثبت خرید -->
     <button onclick="submitPurchase()"
-            class="bg-blue-600 text-white px-6 py-3 rounded w-full text-xl mt-4">✅ ثبت خرید
-    </button>
+            class="bg-blue-600 text-white px-6 py-3 rounded w-full text-xl mt-4">✅ ثبت خرید</button>
   </div>
 
   <footer class="footer">
@@ -316,6 +313,13 @@
         })
         .catch(err => console.warn("خطا در توقف اسکنر:", err));
     }
+
+    // میان‌بر کلید R برای اسکنر
+    document.addEventListener('keydown', e => {
+      if (e.key === 'r' || e.key === 'R') {
+        toggleScanner();
+      }
+    });
 
     // به‌روز رسانی سال در فوتر
     document.getElementById('year').textContent = new Date().getFullYear();
