@@ -2,6 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>فروشگاه - ثبت خرید</title>
 
   <!-- Tailwind CSS -->
@@ -165,6 +166,27 @@
     let lastScanTime    = 0;
     const scanDebounceDelay = 2000;
 
+    // تابع پخش بوق کوتاه با Web Audio API
+    function playBeep() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.value = 1000;
+      gain.gain.value = 0.5;
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+
+      setTimeout(() => {
+        osc.stop();
+        ctx.close();
+      }, 100);
+    }
+
     // افزودن یا افزایش تعداد محصول
     function addToCart() {
       const code     = productCodeInput.value.trim();
@@ -176,6 +198,8 @@
       if (!product) {
         return alert("محصولی با این کد یافت نشد!");
       }
+      // پخش بوق در افزودن دستی (اختیاری)
+      playBeep();
       const idx = cart.findIndex(item => item.code === code);
       if (idx > -1) {
         cart[idx].quantity += quantity;
@@ -289,6 +313,8 @@
           if (!product) {
             return alert("❌ محصولی با این بارکد یافت نشد!");
           }
+          // پخش بوق موفقیت اسکن
+          playBeep();
           const idx = cart.findIndex(item => item.code === code);
           if (idx > -1) {
             cart[idx].quantity += 1;
