@@ -3,24 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <title>فروشگاه - ثبت خرید</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Html5Qrcode برای اسکن بارکد -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
   <style>
     @font-face {
-        font-family: "Vazir";
-        src: url("https://sgtmarket.ir/Vazir-Regular.ttf");
+      font-family: "Vazir";
+      src: url("https://sgtmarket.ir/Vazir-Regular.ttf");
     }
     body {
-        font-family: "Vazir";
+      font-family: "Vazir";
+    }
+    .footer {
+      background-color: #f2f2f2;
+      color: #333;
+      text-align: center;
+      padding: 1em 0;
+      font-size: 0.9rem;
+      border-top: 1px solid #ddd;
+      direction: rtl;
+    }
+    .footer a {
+      color: #0077cc;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 
 <script>
-    // بررسی وضعیت ورود
-    if (!sessionStorage.getItem('authenticated')) {
-        window.location.href = "login.html"; // هدایت به صفحه ورود
-    }
-    </script>
+  // بررسی وضعیت ورود
+  if (!sessionStorage.getItem('authenticated')) {
+    window.location.href = "login.html";
+  }
+</script>
+
 <body class="bg-gray-100 p-6 font-sans">
 
   <!-- ناوبری -->
@@ -39,11 +62,27 @@
   <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
     <h1 class="text-3xl font-bold text-center mb-6">🛒 ثبت خرید</h1>
 
-    <!-- ورودی کد محصول + تعداد -->
-    <div class="flex gap-2 mb-4">
-      <input id="productCodeInput" type="text" placeholder="کد محصول را وارد کنید" class="border p-2 rounded w-full">
-      <input id="productQtyInput" type="number" min="1" value="1" class="border p-2 rounded w-24 text-center" title="تعداد">
-      <button onclick="addToCart()" class="bg-green-500 text-white px-4 py-2 rounded">➕ افزودن</button>
+    <!-- ورودی کد محصول + تعداد + دکمه اسکن -->
+    <div class="flex gap-2 mb-4 items-center">
+      <input id="productCodeInput" type="text" placeholder="کد محصول را وارد کنید"
+             class="border p-2 rounded w-full" style="height: 65px;">
+      <input id="productQtyInput" type="number" min="1" value="1"
+             class="border p-2 rounded w-24 text-center" style="height: 65px;" title="تعداد">
+      <button onclick="addToCart()"
+              class="bg-green-500 text-white px-4 py-2 rounded">➕ افزودن
+      </button>
+      <button onclick="toggleScanner()"
+              class="bg-blue-500 text-white px-4 py-2 rounded">📷 اسکن
+      </button>
+    </div>
+
+    <!-- پنجره کوچک وبکم برای اسکن -->
+    <div id="scannerContainer"
+         class="hidden fixed top-4 left-4 bg-white border rounded shadow-lg z-50">
+      <div id="qr-reader" style="width: 250px; height: 250px;"></div>
+      <button onclick="stopScanner()"
+              class="bg-red-500 text-white w-full py-1">❌ بستن
+      </button>
     </div>
 
     <!-- لیست خرید -->
@@ -59,21 +98,24 @@
         <div>
           <label for="profitPercent" class="block mb-1 font-medium text-gray-700">درصد سود</label>
           <div class="flex items-center gap-2">
-            <input id="profitPercent" type="number" min="0" value="0" class="border p-2 rounded w-full text-center" placeholder="سود">
+            <input id="profitPercent" type="number" min="0" value="0"
+                   class="border p-2 rounded w-full text-center" placeholder="سود">
             <span class="text-gray-600 font-bold">٪</span>
           </div>
         </div>
         <div>
           <label for="discountPercent" class="block mb-1 font-medium text-gray-700">درصد تخفیف</label>
           <div class="flex items-center gap-2">
-            <input id="discountPercent" type="number" min="0" value="0" class="border p-2 rounded w-full text-center" placeholder="تخفیف">
+            <input id="discountPercent" type="number" min="0" value="0"
+                   class="border p-2 rounded w-full text-center" placeholder="تخفیف">
             <span class="text-gray-600 font-bold">٪</span>
           </div>
         </div>
         <div>
           <label for="taxPercent" class="block mb-1 font-medium text-gray-700">درصد مالیات</label>
           <div class="flex items-center gap-2">
-            <input id="taxPercent" type="number" min="0" value="9" class="border p-2 rounded w-full text-center" placeholder="مالیات">
+            <input id="taxPercent" type="number" min="0" value="9"
+                   class="border p-2 rounded w-full text-center" placeholder="مالیات">
             <span class="text-gray-600 font-bold">٪</span>
           </div>
         </div>
@@ -83,80 +125,80 @@
     <!-- اطلاعات مشتری -->
     <div class="mb-6">
       <h2 class="text-xl font-semibold mb-2">👤 اطلاعات مشتری (اختیاری)</h2>
-      <input id="customerName" type="text" placeholder="نام مشتری" class="border p-2 rounded w-full mb-2">
-      <input id="customerPhone" type="text" placeholder="شماره تلفن" class="border p-2 rounded w-full">
+      <input id="customerName" type="text" placeholder="نام مشتری"
+             class="border p-2 rounded w-full mb-2">
+      <input id="customerPhone" type="text" placeholder="شماره تلفن"
+             class="border p-2 rounded w-full">
     </div>
-
-    
 
     <!-- نمایش قیمت نهایی -->
     <div class="mt-4 text-xl font-bold text-center" id="finalPrice">💳 قیمت نهایی: ۰ ریال</div>
 
     <!-- دکمه ثبت خرید -->
-    <button onclick="submitPurchase()" class="bg-blue-600 text-white px-6 py-3 rounded w-full text-xl mt-4">✅ ثبت خرید</button>
+    <button onclick="submitPurchase()"
+            class="bg-blue-600 text-white px-6 py-3 rounded w-full text-xl mt-4">✅ ثبت خرید
+    </button>
   </div>
 
-  <style>
-    .footer {
-  background-color: #f2f2f2;
-  color: #333;
-  text-align: center;
-  padding: 1em 0;
-  font-size: 0.9rem;
-  border-top: 1px solid #ddd;
-  direction: rtl;
-}
-
-.footer a {
-  color: #0077cc;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.footer a:hover {
-  text-decoration: underline;
-}
-  </style>
-
   <br>
-
   <footer class="footer">
-      <div class="footer-content">
-        <p style="direction: ltr">
-          &copy; <span id="year">2025</span> Enter Code - All rights reserved.
-          <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
-        </p>
-      </div>
-    </footer>
+    <div class="footer-content">
+      <p style="direction: ltr">
+        &copy; <span id="year">2025</span> Enter Code - All rights reserved.
+        <a href="https://ehsan-hashemi.ir" target="_blank">Ehsan Group</a>
+      </p>
+    </div>
+  </footer>
 
-  <!-- اسکریپت -->
+  <!-- اسکریپت اصلی -->
   <script>
-    let products = JSON.parse(localStorage.getItem('products') || '[]');
-    let purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
-    let cart = [];
+    // داده‌ها
+    let products   = JSON.parse(localStorage.getItem('products')   || '[]');
+    let purchases  = JSON.parse(localStorage.getItem('purchases')  || '[]');
+    let cart       = [];
 
+    // المان‌های داینامیک
+    const scannerContainer = document.getElementById('scannerContainer');
+    const productCodeInput = document.getElementById('productCodeInput');
+    const productQtyInput  = document.getElementById('productQtyInput');
+    const cartList         = document.getElementById('cartList');
+    const totalPrice       = document.getElementById('totalPrice');
+    const finalPrice       = document.getElementById('finalPrice');
+    const profitPercent    = document.getElementById('profitPercent');
+    const discountPercent  = document.getElementById('discountPercent');
+    const taxPercent       = document.getElementById('taxPercent');
+    const customerName     = document.getElementById('customerName');
+    const customerPhone    = document.getElementById('customerPhone');
+
+    // debounce برای جلوگیری از ثبت چندباره
+    let lastScannedCode   = "";
+    let lastScanTime      = 0;
+    const scanDebounceDelay = 2000; // ۲۰۰۰ میلی‌ثانیه = ۲ ثانیه
+
+    // افزودن محصول به سبد
     function addToCart() {
-      const code = productCodeInput.value.trim();
+      const code     = productCodeInput.value.trim();
       const quantity = parseInt(productQtyInput.value);
-      if (!code || isNaN(quantity) || quantity < 1) return alert("کد یا تعداد معتبر نیست!");
-
+      if (!code || isNaN(quantity) || quantity < 1) {
+        return alert("کد یا تعداد معتبر نیست!");
+      }
       const product = products.find(p => p.code === code);
-      if (!product) return alert("محصولی با این کد یافت نشد!");
-
+      if (!product) {
+        return alert("محصولی با این کد یافت نشد!");
+      }
       cart.push({ ...product, quantity });
       productCodeInput.value = '';
-      productQtyInput.value = 1;
+      productQtyInput.value  = 1;
       renderCart();
     }
 
+    // نمایش سبد خرید
     function renderCart() {
       cartList.innerHTML = '';
       let total = 0;
-
       cart.forEach((p, i) => {
         const itemTotal = (p.price || 0) * (p.quantity || 1);
         total += itemTotal;
-
         const li = document.createElement('li');
         li.className = "bg-gray-100 p-2 rounded flex justify-between items-center";
         li.innerHTML = `
@@ -165,48 +207,47 @@
         `;
         cartList.appendChild(li);
       });
-
       totalPrice.textContent = `💰 مجموع: ${total.toLocaleString()} ریال`;
       updateFinalPrice(total);
     }
 
+    // محاسبه و نمایش قیمت نهایی
     function updateFinalPrice(baseTotal) {
-      const profit = parseFloat(profitPercent.value) || 0;
+      const profit   = parseFloat(profitPercent.value)   || 0;
       const discount = parseFloat(discountPercent.value) || 0;
-      const tax = parseFloat(taxPercent.value) || 0;
-
-      let final = baseTotal;
-      final *= (1 + profit / 100);
-      final *= (1 - discount / 100);
-      final *= (1 + tax / 100);
-
-      finalPrice.textContent = `💳 قیمت نهایی: ${Math.round(final).toLocaleString()} ریال`;
+      const tax      = parseFloat(taxPercent.value)      || 0;
+      let finalVal = baseTotal;
+      finalVal *= (1 + profit / 100);
+      finalVal *= (1 - discount / 100);
+      finalVal *= (1 + tax / 100);
+      finalPrice.textContent = `💳 قیمت نهایی: ${Math.round(finalVal).toLocaleString()} ریال`;
     }
 
+    // حذف آیتم از سبد
     function removeFromCart(index) {
       cart.splice(index, 1);
       renderCart();
     }
 
+    // ثبت نهایی خرید
     function submitPurchase() {
-      if (cart.length === 0) return alert("سبد خرید خالی است!");
-
-      const name = customerName.value.trim();
-      const phone = customerPhone.value.trim();
-      const date = new Date().toLocaleString('fa-IR');
+      if (cart.length === 0) {
+        return alert("سبد خرید خالی است!");
+      }
+      const name      = customerName.value.trim();
+      const phone     = customerPhone.value.trim();
+      const date      = new Date().toLocaleString('fa-IR');
       const timestamp = Date.now();
-
-      const baseTotal = cart.reduce((sum, p) => sum + (p.price || 0) * (p.quantity || 1), 0);
-      const profit = parseFloat(profitPercent.value) || 0;
-      const discount = parseFloat(discountPercent.value) || 0;
-      const tax = parseFloat(taxPercent.value) || 0;
-
-      let finalTotal = baseTotal;
-      finalTotal *= (1 + profit / 100);
-      finalTotal *= (1 - discount / 100);
-      finalTotal *= (1 + tax / 100);
-
-      purchases.push({ name, phone, date, timestamp, items: cart, total: Math.round(finalTotal) });
+      const baseTotal = cart.reduce((s, p) => s + (p.price || 0) * (p.quantity || 1), 0);
+      let finalTotal  = baseTotal;
+      finalTotal *= (1 + (parseFloat(profitPercent.value)   || 0) / 100);
+      finalTotal *= (1 - (parseFloat(discountPercent.value) || 0) / 100);
+      finalTotal *= (1 + (parseFloat(taxPercent.value)      || 0) / 100);
+      purchases.push({
+        name, phone, date, timestamp,
+        items: cart,
+        total: Math.round(finalTotal)
+      });
       localStorage.setItem('purchases', JSON.stringify(purchases));
       cart = [];
       renderCart();
@@ -214,20 +255,75 @@
       alert("✅ خرید ثبت شد!");
     }
 
-    productCodeInput.addEventListener('keydown', (e) => {
+    // کلیدهای Enter برای افزودن سریع
+    productCodeInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') addToCart();
     });
-    productQtyInput.addEventListener('keydown', (e) => {
+    productQtyInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') addToCart();
     });
-
     profitPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
     discountPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
     taxPercent.addEventListener('input', () => updateFinalPrice(getBaseTotal()));
 
     function getBaseTotal() {
-      return cart.reduce((sum, p) => sum + (p.price || 0) * (p.quantity || 1), 0);
+      return cart.reduce((s, p) => s + (p.price || 0) * (p.quantity || 1), 0);
     }
+
+    // ==== بخش اسکن بارکد ====
+    let scannerActive = false;
+    let html5QrCode   = null;
+
+    function toggleScanner() {
+      scannerActive ? stopScanner() : startScanner();
+    }
+
+    function startScanner() {
+      scannerContainer.classList.remove('hidden');
+      html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 200, height: 200 } },
+        qrCodeMessage => {
+          const code = qrCodeMessage.trim();
+          const now  = Date.now();
+          // debounce: اگر کمتر از ۲ ثانیه از آخرین اسکن گذشته و بارکد یکسانه، نادیده بگیر
+          if (code === lastScannedCode && (now - lastScanTime) < scanDebounceDelay) {
+            return;
+          }
+          lastScannedCode = code;
+          lastScanTime    = now;
+
+          // منطق اضافه کردن محصول
+          const product = products.find(p => p.code === code);
+          if (product) {
+            cart.push({ ...product, quantity: 1 });
+            renderCart();
+          } else {
+            alert("❌ محصولی با این بارکد یافت نشد!");
+          }
+        },
+        errorMessage => {
+          // خطاهای لحظه‌ای اسکن را می‌توان اینجا لاگ کرد
+        }
+      )
+      .then(() => { scannerActive = true; })
+      .catch(err => alert("خطا در فعال‌سازی دوربین: " + err));
+    }
+
+    function stopScanner() {
+      if (!html5QrCode) return;
+      html5QrCode.stop()
+        .then(() => {
+          html5QrCode.clear();
+          scannerContainer.classList.add('hidden');
+          scannerActive = false;
+        })
+        .catch(err => console.warn("خطا در توقف اسکنر:", err));
+    }
+
+    // بروز‌رسانی سال در فوتر
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
